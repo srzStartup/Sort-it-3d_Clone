@@ -29,19 +29,19 @@ public class HolderInitializer : MonoBehaviour
     {
         holderTransforms.ForEach(holder =>
         {
-            var ballsToBeQueued = holder.GetComponentsInChildren<Transform>();
-            ballsToBeQueued = Array.FindAll(ballsToBeQueued, (ballToBeQueued) => !ballToBeQueued.Equals(holder));
+            List<Transform> ballsToBeQueued = holder.GetComponentsInChildren<Transform>().ToList();
+            ballsToBeQueued = ballsToBeQueued.FindAll((ballToBeQueued) => !ballToBeQueued.Equals(holder));
 
-            if (ballsToBeQueued.Length <= holderSizeMax)
+            if (ballsToBeQueued.Count <= holderSizeMax)
             {
-                Array.Sort(ballsToBeQueued, (previous, current) =>
+                ballsToBeQueued.Sort((previous, current) =>
                 {
                     if (current.position.y > previous.position.y) return 1;
                     else return -1;
                 });
 
                 var index = holder.GetComponent<Clickable>().index;
-                holderList.Add(new Holder(index, ballsToBeQueued));
+                holderList.Add(new Holder(holder, index, ballsToBeQueued));
             }
         });
 

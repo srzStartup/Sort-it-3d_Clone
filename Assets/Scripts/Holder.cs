@@ -1,21 +1,18 @@
 using System;
+using System.Linq;
 using System.Collections.Generic;
 
 using UnityEngine;
 
 public class Holder
 {
+    public Transform transform { get; }
     public int order { get; }
-    public Queue<Transform> ballQueue { get; private set; }
+    public List<Transform> balls { get; private set; }
 
-    public Holder(int order, params Transform[] ballsToQueue)
+    public Holder(Transform transform, int order, List<Transform> balls)
     {
         this.order = order;
-        ballQueue = new Queue<Transform>();
-
-        if (ballsToQueue.Length > 0)
-        {
-            Array.ForEach(ballsToQueue, ballToQueue => ballQueue.Enqueue(ballToQueue));
-        }
+        this.balls = balls;
     }
 }

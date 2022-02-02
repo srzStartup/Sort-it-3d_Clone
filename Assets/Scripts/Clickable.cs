@@ -10,6 +10,7 @@ public class Clickable : MonoBehaviour, IPointerClickHandler
     [SerializeField] private int _index;
     public int index => _index;
 
+
     public void OnPointerClick(PointerEventData eventData)
     {
         ClickHolder?.Invoke(this, _index);
