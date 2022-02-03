@@ -1,18 +1,13 @@
-using System;
-using System.Linq;
+using System.Collections;
 using System.Collections.Generic;
-
 using UnityEngine;
 
-public class Holder
+public class Holder : Clickable
 {
-    public Transform transform { get; }
-    public int order { get; }
-    public List<Transform> balls { get; private set; }
+    public int order { get; set; }
+    public List<Transform> balls { get; set; }
 
-    public Holder(Transform transform, int order, List<Transform> balls)
-    {
-        this.order = order;
-        this.balls = balls;
-    }
+    public List<Transform> slots { get; set; }
+
+    public Bounds bounds => transform.GetComponent<Renderer>().bounds;
 }

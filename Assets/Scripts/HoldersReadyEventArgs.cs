@@ -4,10 +4,10 @@ using UnityEngine;
 
 public class HoldersReadyEventArgs : EventArgs
 {
-    public List<Holder> holders { get; }
+    public List<Transform> holders { get; }
     public List<Material> ballMaterials { get; }
 
-    public HoldersReadyEventArgs(List<Holder> holders, List<Material> ballMaterials)
+    public HoldersReadyEventArgs(List<Transform> holders, List<Material> ballMaterials)
     {
         this.holders = holders;
         this.ballMaterials = ballMaterials;
