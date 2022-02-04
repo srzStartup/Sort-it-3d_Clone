@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,11 +8,8 @@ using UnityEngine.EventSystems;
 
 public class Holder : MonoBehaviour, IPointerClickHandler
 {
-    public delegate void ClickedEventHandler(Holder sender, PointerEventData eventData);
-    public delegate void HolderCompletedEventHandler(Holder sender);
-
-    public static event ClickedEventHandler ClickHolder;
-    public static event HolderCompletedEventHandler HolderCompleted;
+    public static event EventHandler<Holder> HolderClicked;
+    public static event EventHandler<Holder> HolderCompleted;
 
     public int order { get; set; }
     public List<Transform> slots { get; set; }
@@ -93,7 +91,7 @@ public class Holder : MonoBehaviour, IPointerClickHandler
                 .TrueForAll(ball => ball.GetComponent<Renderer>().material.color.Equals(color));
 
             if (isFinish)
-                HolderCompleted?.Invoke(this);
+                HolderCompleted?.Invoke(this, this);
         }
     }
 
@@ -108,7 +106,7 @@ public class Holder : MonoBehaviour, IPointerClickHandler
         return poppedBall;
     }
 
-    public void Peek(float popupHeight)
+    public void Popup(float popupHeight)
     {
         int ballIndex = balls.Keys.Max();
         Transform ball = balls[ballIndex];
@@ -129,13 +127,8 @@ public class Holder : MonoBehaviour, IPointerClickHandler
         ball.localPosition = Vector3.zero;
     }
 
-    public void SetTrueForAllStrategy()
-    {
-
-    }
-
     public void OnPointerClick(PointerEventData eventData)
     {
-        ClickHolder?.Invoke(this, eventData);
+        HolderClicked?.Invoke(this, this);
     }
 }
