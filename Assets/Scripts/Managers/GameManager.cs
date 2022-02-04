@@ -24,6 +24,8 @@ public class GameManager : MonoBehaviour
     private List<int> _completedHolderIndexes;
     private int _holdersNeedToBeCompleted;
 
+    private bool _isOver;
+
     private void Awake()
     {
         if (Instance == null)
@@ -35,6 +37,11 @@ public class GameManager : MonoBehaviour
         EventManager.HolderCompleted += OnHolderCompleted;
 
         _panel.SetActive(false);
+    }
+
+    private void Start()
+    {
+        _isOver = false;
     }
 
     private void Update()
@@ -103,12 +110,26 @@ public class GameManager : MonoBehaviour
         }
         else
         {
-            Debug.Log("End of the game.");
+            _isOver = true;
+
+            _panel.GetComponent<Image>()
+                .color = crossFadeColor;
+            levelCompletedText.text = $"End of the Game.";
+
+            levelText.gameObject.SetActive(false);
+
+            _panel.SetActive(true);
         }
     }
 
     public void OnTapToContinueClicked()
     {
+        if (_isOver)
+        {
+            Application.Quit();
+            return;
+        }
+
         _panel.SetActive(false);
         levelText.gameObject.SetActive(true);
         SceneManager.LoadScene(_level + 1);
