@@ -3,18 +3,24 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 
+using DG.Tweening;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
 public class Holder : MonoBehaviour, IPointerClickHandler
 {
-    public static event EventHandler<Holder> HolderClicked;
-    public static event EventHandler<Holder> HolderCompleted;
+    private HolderEventSystem _holderEventChannel;
+    private float _duration = .3f;
 
     public int order { get; set; }
     public List<Transform> slots { get; set; }
     // key: slotIndex, value: ball
     private Dictionary<int, Transform> balls;
+
+    public void SetHolderEventChannel(HolderEventSystem channel)
+    {
+        _holderEventChannel = channel;
+    }
 
     public Bounds bounds => transform.GetComponent<Renderer>().bounds;
 
@@ -72,13 +78,18 @@ public class Holder : MonoBehaviour, IPointerClickHandler
         }
     }
 
+    public Transform LastBall => balls[balls.Keys.Max()];
+
     public void Add(Transform ballToAdd)
     {
         int slotIndex = slots.IndexOf(availableSlot);
 
         ballToAdd.parent = null;
         ballToAdd.parent = availableSlot;
-        ballToAdd.localPosition = Vector3.zero;
+
+        Vector3 targetPosition = new Vector3(ballToAdd.parent.position.x, ballToAdd.position.y, ballToAdd.parent.position.z);
+        ballToAdd.DOMove(targetPosition, _duration)
+            .OnComplete(() => ballToAdd.DOLocalMove(Vector3.zero, _duration));
 
         balls.Add(slotIndex, ballToAdd);
 
@@ -91,7 +102,7 @@ public class Holder : MonoBehaviour, IPointerClickHandler
                 .TrueForAll(ball => ball.GetComponent<Renderer>().material.color.Equals(color));
 
             if (isFinish)
-                HolderCompleted?.Invoke(this, this);
+                _holderEventChannel.RaiseHolderCompletedEvent(this);
         }
     }
 
@@ -111,9 +122,7 @@ public class Holder : MonoBehaviour, IPointerClickHandler
         int ballIndex = balls.Keys.Max();
         Transform ball = balls[ballIndex];
 
-        ball.position = new Vector3(ball.position.x,
-                                    GetAbsolutePopupHeight(popupHeight),
-                                    ball.position.z);
+        ball.DOMoveY(GetAbsolutePopupHeight(popupHeight), _duration);
     }
 
     public float GetAbsolutePopupHeight(float popupHeight)
@@ -124,11 +133,12 @@ public class Holder : MonoBehaviour, IPointerClickHandler
     public void BackDown()
     {
         Transform ball = balls[balls.Keys.Max()];
-        ball.localPosition = Vector3.zero;
+        ball.DOMoveY(ball.position.y + 1.5f, _duration)
+            .OnComplete(() => ball.DOLocalMoveY(.0f, _duration));
     }
 
     public void OnPointerClick(PointerEventData eventData)
     {
-        HolderClicked?.Invoke(this, this);
+        _holderEventChannel.RaiseHolderClickedEvent(this);
     }
 }

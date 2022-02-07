@@ -8,35 +8,62 @@ using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 using TMPro;
 
-public class GameManager : MonoBehaviour
+public class GameManager : Singleton<GameManager>
 {
-    public static GameManager Instance;
-
     [SerializeField] private TextMeshProUGUI levelText;
     [SerializeField] private GameObject _panel;
     [SerializeField] private TextMeshProUGUI levelCompletedText;
 
+    [SerializeField] private HolderEventSystem _holderEventChannel;
+    [SerializeField] private ParticleEventSystem _particleEventChannel;
+    [SerializeField] private InGameEventSystem _inGameEventChannel;
+
     [SerializeField] private Color crossFadeColor;
 
-    private int _level;
-    private float _popupHeight;
-    private Holder _activeHolder = null;
-    private List<int> _completedHolderIndexes;
-    private int _holdersNeedToBeCompleted;
-
+    private int _currentLevel;
     private bool _isOver;
+    private bool _isFailed;
 
-    private void Awake()
+    public override void Awake()
     {
-        if (Instance == null)
-            Instance = this;
-        DontDestroyOnLoad(gameObject);
+        base.Awake();
 
-        EventManager.HoldersReady += OnHoldersReady;
-        EventManager.HolderClicked += OnHolderClicked;
-        EventManager.HolderCompleted += OnHolderCompleted;
+        _holderEventChannel.HoldersCompletedInLevel += OnHoldersCompletedInLevel;
+        _holderEventChannel.HoldersReady += OnHoldersReady;
+
+        _inGameEventChannel.MoveAuthRemainEvent += OnMoveAuthRemain;
+        _inGameEventChannel.OutOfMoveEvent += OnOutOfMove;
 
         _panel.SetActive(false);
+    }
+
+    private void OnOutOfMove()
+    {
+        _isFailed = true;
+
+        _panel.GetComponent<Image>()
+            .color = crossFadeColor;
+        levelCompletedText.text = $"LEVEL {_currentLevel} FAILED!";
+
+        levelText.gameObject.SetActive(false);
+
+        StartCoroutine(WaitForHolderCompletion(.5f));
+    }
+
+    private void OnMoveAuthRemain(int remain)
+    {
+        Debug.Log(remain);
+    }
+
+    private void OnDestroy()
+    {
+        _holderEventChannel.HoldersCompletedInLevel -= OnHoldersCompletedInLevel;
+        _holderEventChannel.HoldersReady -= OnHoldersReady;
+    }
+
+    private void OnHoldersReady(LevelReadyEventArgs e)
+    {
+        _currentLevel = e.level;
     }
 
     private void Start()
@@ -46,58 +73,13 @@ public class GameManager : MonoBehaviour
 
     private void Update()
     {
-        levelText.text = $"LEVEL {_level}";
+        levelText.text = $"LEVEL {_currentLevel}";
     }
 
-    private void OnHolderClicked(object sender, Holder holder)
+    private void OnHoldersCompletedInLevel(int level)
     {
-        if (_completedHolderIndexes.Contains(holder.order)) return;
+        StartCoroutine(WaitForParticlePlay(.5f));
 
-        if (_activeHolder == null)
-        {
-            if (holder.isEmpty) return;
-
-            holder.Popup(_popupHeight);
-            _activeHolder = holder;
-        }
-        else
-        {
-            if (_activeHolder.Equals(holder))
-            {
-                holder.BackDown();
-                _activeHolder = null;
-            }
-            else
-            {
-                if (!holder.hasAvailableSlot) return;
-
-                Transform selectedBall = _activeHolder.Pop();
-                holder.Add(selectedBall);
-
-                _activeHolder = null;
-            }
-        }
-    }
-
-    private void OnHolderCompleted(object sender, Holder holder)
-    {
-        _completedHolderIndexes.Add(holder.order);
-
-        if (_holdersNeedToBeCompleted == _completedHolderIndexes.Count)
-            //LevelCompleted?.Invoke(this, _level);
-            OnLevelCompleted(_level);
-    }
-
-    private void OnHoldersReady(object sender, HoldersReadyEventArgs eventArgs)
-    {
-        _popupHeight = eventArgs.popupHeight;
-        _completedHolderIndexes = new List<int>();
-        _level = eventArgs.level;
-        _holdersNeedToBeCompleted = eventArgs.holdersNeedToBeCompleted;
-    }
-
-    private void OnLevelCompleted(int level)
-    {
         if (SceneManager.sceneCountInBuildSettings > level)
         {
             _panel.GetComponent<Image>()
@@ -106,7 +88,7 @@ public class GameManager : MonoBehaviour
 
             levelText.gameObject.SetActive(false);
 
-            _panel.SetActive(true);
+            StartCoroutine(WaitForHolderCompletion(1.2f));
         }
         else
         {
@@ -118,20 +100,39 @@ public class GameManager : MonoBehaviour
 
             levelText.gameObject.SetActive(false);
 
-            _panel.SetActive(true);
+            StartCoroutine(WaitForHolderCompletion(.5f));
         }
     }
 
     public void OnTapToContinueClicked()
     {
+        _particleEventChannel.RaiseCongratsParticleStop();
+
         if (_isOver)
         {
             Application.Quit();
             return;
         }
 
+        if (_isFailed)
+        {
+            return;
+        }
+
         _panel.SetActive(false);
         levelText.gameObject.SetActive(true);
-        SceneManager.LoadScene(_level + 1);
+        SceneManager.LoadScene($"Level{_currentLevel + 1}");
+    }
+
+    IEnumerator WaitForHolderCompletion(float duration)
+    {
+        yield return new WaitForSeconds(duration);
+        _panel.SetActive(true);
+    }
+
+    IEnumerator WaitForParticlePlay(float duration)
+    {
+        yield return new WaitForSeconds(duration);
+        _particleEventChannel.RaiseCongratsParticlePlay();
     }
 }

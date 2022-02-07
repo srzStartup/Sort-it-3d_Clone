@@ -1,4 +1,3 @@
-using System;
 using System.Linq;
 using System.Collections;
 using System.Collections.Generic;
@@ -8,20 +7,28 @@ using UnityEngine.EventSystems;
 
 public class LevelBuilder : MonoBehaviour
 {
-    public static event EventHandler<HoldersReadyEventArgs> HoldersReady;
-
     [SerializeField] private Transform _ground;
+    [SerializeField] private Transform _ballPrefab;
+    [SerializeField] private Transform _holderPrefab;
+
+    [Header("--- Camera Settings ---")]
     [SerializeField] private Vector3 _cameraPositionOffset = new Vector3(0, 13.75f, -13.63f);
     [SerializeField] private Vector3 _cameraRotationOffset = new Vector3(35.0f, .0f, .0f);
     [SerializeField] private CameraClearFlags _camClearFlags;
     [SerializeField] private Color _camBackgroundColor;
+
+    [Header("--- Holder Settings ---")]
     [SerializeField] private Transform _holderParent;
-    [SerializeField] private int holderSize;
-    [SerializeField] private float popupHeight;
-    [SerializeField] private Transform ballPrefab;
-    [SerializeField] private List<Material> ballMaterials;
-    [SerializeField] private int level;
-    [SerializeField] private string slotsName = "Slot_";
+    [SerializeField] private LevelStrategy _levelStrategy;
+    [SerializeField] private float _popupHeight;
+    [SerializeField] private string _slotsNameStartsWith = "Slot_";
+
+    [Header("--- Leveling ---")]
+    [SerializeField] private int _level;
+
+    [Header("--- Event Channels ---")]
+    [SerializeField] private HolderEventSystem _holderEventChannel;
+    [SerializeField] private ParticleEventSystem _particleEventChannel;
 
     private List<Transform> holderTransforms;
     private int ballsCount;
@@ -44,16 +51,16 @@ public class LevelBuilder : MonoBehaviour
             .ToList()
             .FindAll(child => !child.Equals(_holderParent) && child.parent.Equals(_holderParent));
 
-        float ballSize = ballPrefab.GetComponent<Renderer>().bounds.size.y;
+        float ballSize = _ballPrefab.GetComponent<Renderer>().bounds.size.y;
         float slotPositionY = ballSize;
 
         holderTransforms.ForEach(holderTransform =>
         {
             List<Transform> slots = new List<Transform>();
-            for (int i = 0; i < holderSize; i++)
+            for (int i = 0; i < _levelStrategy.HolderSize; i++)
             {
-                if (i % holderSize == 0) slotPositionY = ballSize;
-                GameObject emptyGameObject = new GameObject($"{slotsName}{i}")
+                if (i % _levelStrategy.HolderSize == 0) slotPositionY = ballSize;
+                GameObject emptyGameObject = new GameObject($"{_slotsNameStartsWith}{i}")
                 {
                     transform =
                     {
@@ -67,19 +74,24 @@ public class LevelBuilder : MonoBehaviour
 
             List<Transform> balls = holderTransform.GetComponentsInChildren<Transform>()
                 .ToList()
-                .FindAll(child => !child.Equals(holderTransform) && !child.name.StartsWith(slotsName));
+                .FindAll(child => !child.Equals(holderTransform) && !child.name.StartsWith(_slotsNameStartsWith));
 
             Holder holder = holderTransform.GetComponent<Holder>() ?? holderTransform.gameObject.AddComponent<Holder>();
             holder.order = holderTransforms.IndexOf(holderTransform);
             holder.slots = slots;
             holder.BallsToSlots(balls);
+            holder.SetHolderEventChannel(_holderEventChannel);
 
             ballsCount += balls.Count;
         });
 
-        int holdersNeedToBeCompleted = CalculateHoldersNeedToBeCompleted(holderSize, ballsCount);
+        int holdersNeedToBeCompleted = ballsCount / _levelStrategy.HolderSize;
 
-        HoldersReady?.Invoke(this, new HoldersReadyEventArgs(holderTransforms, level, holdersNeedToBeCompleted, popupHeight, ballMaterials));
+        _holderEventChannel.RaiseHoldersReadyEvent(new LevelReadyEventArgs(holderTransforms,
+                                                                           _level,
+                                                                           holdersNeedToBeCompleted,
+                                                                           _popupHeight,
+                                                                           _levelStrategy));
 
         Destroy(gameObject);
     }
@@ -95,12 +107,7 @@ public class LevelBuilder : MonoBehaviour
         if (!_camClearFlags.Equals(CameraClearFlags.Nothing))
         {
             _cam.clearFlags = _camClearFlags;
-            _cam.backgroundColor = _camBackgroundColor;
+            _cam.backgroundColor = _camBackgroundColor != null ? _camBackgroundColor : Random.ColorHSV(.0f, 1.0f, .0f, 1.0f, .0f, 1.0f, 1.0f, 1.0f);
         }
-    }
-
-    private int CalculateHoldersNeedToBeCompleted(int holderSize, int ballsCount)
-    {
-        return ballsCount / holderSize;
     }
 }

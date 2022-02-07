@@ -1436,12 +1436,28 @@ PrefabInstance:
       value: 5
       objectReference: {fileID: 0}
     - target: {fileID: 6095445658744083957, guid: ff663dfdd4432204d888a5f6ce8bf431, type: 3}
+      propertyPath: _level
+      value: 5
+      objectReference: {fileID: 0}
+    - target: {fileID: 6095445658744083957, guid: ff663dfdd4432204d888a5f6ce8bf431, type: 3}
       propertyPath: _ground
       value: 
       objectReference: {fileID: 1100316889}
     - target: {fileID: 6095445658744083957, guid: ff663dfdd4432204d888a5f6ce8bf431, type: 3}
       propertyPath: holderSize
       value: 4
+      objectReference: {fileID: 0}
+    - target: {fileID: 6095445658744083957, guid: ff663dfdd4432204d888a5f6ce8bf431, type: 3}
+      propertyPath: _ballPrefab
+      value: 
+      objectReference: {fileID: 2830758514045153269, guid: dbc591da364352e42a6264a3a52ffb59, type: 3}
+    - target: {fileID: 6095445658744083957, guid: ff663dfdd4432204d888a5f6ce8bf431, type: 3}
+      propertyPath: _holderSize
+      value: 4
+      objectReference: {fileID: 0}
+    - target: {fileID: 6095445658744083957, guid: ff663dfdd4432204d888a5f6ce8bf431, type: 3}
+      propertyPath: _popupHeight
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 6095445658744083957, guid: ff663dfdd4432204d888a5f6ce8bf431, type: 3}
       propertyPath: _holderParent

@@ -214,17 +214,19 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _ground: {fileID: 1726579527}
+  _ballPrefab: {fileID: 2830758514045153269, guid: dbc591da364352e42a6264a3a52ffb59, type: 3}
+  _holderPrefab: {fileID: 0}
   _cameraPositionOffset: {x: 0, y: 16, z: -12}
   _cameraRotationOffset: {x: 45, y: 0, z: 0}
   _camClearFlags: 2
   _camBackgroundColor: {r: 0.2216981, g: 1, b: 0.9771392, a: 0}
   _holderParent: {fileID: 2065816715}
-  holderSize: 3
-  popupHeight: 2.5
-  ballPrefab: {fileID: 2830758514045153269, guid: dbc591da364352e42a6264a3a52ffb59, type: 3}
-  ballMaterials: []
-  level: 3
-  slotsName: Slot_
+  _levelStrategy: {fileID: 11400000, guid: dc0938e25aa077a42a856dbbc5051d40, type: 2}
+  _popupHeight: 1
+  _slotsNameStartsWith: Slot_
+  _level: 3
+  _holderEventChannel: {fileID: 11400000, guid: c9a85c2c5178e1841990b3411c395244, type: 2}
+  _particleEventChannel: {fileID: 0}
 --- !u!4 &178819179
 Transform:
   m_ObjectHideFlags: 0

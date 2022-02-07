@@ -49,9 +49,10 @@ MonoBehaviour:
   _camClearFlags: 2
   _camBackgroundColor: {r: 0, g: 0, b: 0, a: 0}
   _holderParent: {fileID: 0}
-  holderSize: 3
-  popupHeight: 2.5
-  ballPrefab: {fileID: 2830758514045153269, guid: dbc591da364352e42a6264a3a52ffb59, type: 3}
-  ballMaterials: []
-  level: 1
-  slotsName: Slot_
+  _holderSize: 0
+  _popupHeight: 0
+  _ballPrefab: {fileID: 0}
+  _ballMaterials: []
+  _level: 0
+  _slotsName: Slot_
+  _holderEventChannel: {fileID: 11400000, guid: c9a85c2c5178e1841990b3411c395244, type: 2}
