@@ -7,11 +7,12 @@ using UnityEngine;
 public class HolderManager : Singleton<HolderManager>
 {
     [SerializeField] private HolderEventSystem _holderEventChannel;
+    [SerializeField] private ParticleEventSystem _particleEventChannel;
 
     private int _level;
     private float _popupHeight;
     private Holder _activeHolder = null;
-    private List<int> _completedHolderIndexes;
+    private List<Holder> _holdersAccomplished;
     private int _holdersNeedToBeCompleted;
     private LevelStrategy _levelStrategy;
 
@@ -33,15 +34,23 @@ public class HolderManager : Singleton<HolderManager>
 
     private void OnHolderCompleted(Holder holder)
     {
-        _completedHolderIndexes.Add(holder.order);
+        _holdersAccomplished.Add(holder);
 
-        if (_holdersNeedToBeCompleted == _completedHolderIndexes.Count)
-            _holderEventChannel.RaiseHoldersCompletedInLevelEvent(_level);
+        if (_holdersNeedToBeCompleted == _holdersAccomplished.Count)
+        {
+            _particleEventChannel.RaiseCongratsParticlePlayRequestEvent();
+            _holdersAccomplished.ForEach(holderAccomplished => holderAccomplished.WarCry(.2f, 7));
+
+            StartCoroutine(WaitForWarCries(1));
+            return;
+        }
+
+        holder.WarCry(.2f, 3);
     }
 
     private void OnHolderClicked(Holder holder)
     {
-        if (_completedHolderIndexes.Contains(holder.order)) return;
+        if (_holdersAccomplished.Contains(holder)) return;
 
         if (_activeHolder == null)
         {
@@ -78,9 +87,15 @@ public class HolderManager : Singleton<HolderManager>
     private void OnHoldersReady(LevelReadyEventArgs eventArgs)
     {
         _popupHeight = eventArgs.popupHeight;
-        _completedHolderIndexes = new List<int>();
+        _holdersAccomplished = new List<Holder>();
         _level = eventArgs.level;
         _holdersNeedToBeCompleted = eventArgs.holdersNeedToBeCompleted;
         _levelStrategy = eventArgs.levelStrategy;
+    }
+
+    IEnumerator WaitForWarCries(float duration)
+    {
+        yield return new WaitForSeconds(duration);
+        _holderEventChannel.RaiseHoldersCompletedInLevelEvent(_level);
     }
 }

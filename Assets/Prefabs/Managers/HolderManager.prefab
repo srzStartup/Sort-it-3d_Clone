@@ -44,3 +44,4 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _holderEventChannel: {fileID: 11400000, guid: c9a85c2c5178e1841990b3411c395244, type: 2}
+  _particleEventChannel: {fileID: 11400000, guid: 996865167ea1c5c44a73076465e833ac, type: 2}

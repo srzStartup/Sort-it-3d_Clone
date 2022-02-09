@@ -89,6 +89,7 @@ public class UIManager : Singleton<UIManager>
     {
         _isGameEnded = true;
 
+        _moveRemainText.gameObject.SetActive(false);
         _endLevelText.text = "End of the Game.";
         _endLevelButton.transform.Find("Text").GetComponent<TextMeshProUGUI>().text = "Quit";
         _endLevelText.gameObject.SetActive(true);
@@ -107,7 +108,8 @@ public class UIManager : Singleton<UIManager>
         _inLevelTextBackground.gameObject.SetActive(false);
         _endLevelText.gameObject.SetActive(true);
 
-        StartCoroutine(WaitForHolderCompletion(1.2f));
+        _panel.SetActive(true);
+        //StartCoroutine(WaitForHolderCompletion(1.2f));
     }
 
     private void OnLevelFailed(int level)
@@ -142,7 +144,7 @@ public class UIManager : Singleton<UIManager>
 
         if (_isLevelCompleted)
         {
-            SceneManager.LoadScene($"Level{_currentLevel + 1}");
+            SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex + 1);
         }
 
         _particleEventChannel.RaiseCongratsParticleStopRequestEvent();

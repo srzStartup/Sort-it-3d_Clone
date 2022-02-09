@@ -7,7 +7,6 @@ using UnityEngine.SceneManagement;
 public class GameManager : Singleton<GameManager>
 {
     [SerializeField] private HolderEventSystem _holderEventChannel;
-    [SerializeField] private ParticleEventSystem _particleEventChannel;
     [SerializeField] private InGameEventSystem _inGameEventChannel;
 
     private int _currentLevel;
@@ -52,8 +51,6 @@ public class GameManager : Singleton<GameManager>
 
     private void OnHoldersCompletedInLevel(int level)
     {
-        StartCoroutine(WaitForParticlePlay(.5f));
-
         if (SceneManager.sceneCountInBuildSettings > level)
         {
             _inGameEventChannel.RaiseLevelCompletedEvent(level);
@@ -75,11 +72,5 @@ public class GameManager : Singleton<GameManager>
     {
         SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
         _inGameEventChannel.RaiseLevelStartedEvent(level, _currentLevelStrategy.considerMoveCount, _currentLevelStrategy.MaxMove);
-    }
-
-    IEnumerator WaitForParticlePlay(float duration)
-    {
-        yield return new WaitForSeconds(duration);
-        _particleEventChannel.RaiseCongratsParticlePlayRequestEvent();
     }
 }

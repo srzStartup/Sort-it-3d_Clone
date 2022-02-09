@@ -88,28 +88,30 @@ public class Holder : MonoBehaviour, IPointerClickHandler
         ballToAdd.parent = null;
         ballToAdd.parent = availableSlot;
 
-        Vector3 targetPosition = new Vector3(
+        Vector3 destination = new Vector3(
             ballToAdd.parent.position.x,
             ballToAdd.position.y,
             ballToAdd.parent.position.z
         );
 
-        ballToAdd.DOMove(targetPosition, _duration)
-            .OnComplete(() => ballToAdd.DOLocalMove(Vector3.zero, _duration));
+        ballToAdd.DOMove(destination, _duration)
+            .OnComplete(() => ballToAdd.DOLocalMove(Vector3.zero, _duration)
+            .OnComplete(() =>
+            {
+                balls.Add(slotIndex, ballToAdd);
 
-        balls.Add(slotIndex, ballToAdd);
+                if (slots.Count == balls.Count)
+                {
+                    Color color = ballToAdd.GetComponent<Renderer>().material.color;
 
-        if (slots.Count == balls.Count)
-        {
-            Color color = ballToAdd.GetComponent<Renderer>().material.color;
+                    bool accomplished = balls.Values
+                        .ToList()
+                        .TrueForAll(ball => ball.GetComponent<Renderer>().material.color.Equals(color));
 
-            bool isFinish = balls.Values
-                .ToList()
-                .TrueForAll(ball => ball.GetComponent<Renderer>().material.color.Equals(color));
-
-            if (isFinish)
-                _holderEventChannel.RaiseHolderCompletedEvent(this);
-        }
+                    if (accomplished)
+                        _holderEventChannel.RaiseHolderCompletedEvent(this);
+                }
+            }));
     }
 
     // need to check if isEmpty
@@ -146,5 +148,11 @@ public class Holder : MonoBehaviour, IPointerClickHandler
     public void OnPointerClick(PointerEventData eventData)
     {
         _holderEventChannel.RaiseHolderClickedEvent(this);
+    }
+
+    public void WarCry(float duration, int times = 1)
+    {
+        transform.DOPunchPosition(Vector3.up / 4, duration)
+            .SetLoops(times);
     }
 }
