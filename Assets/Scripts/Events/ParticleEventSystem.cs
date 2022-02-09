@@ -9,12 +9,12 @@ public class ParticleEventSystem : ScriptableObject
     public UnityAction CongratsParticlePlayRequested;
     public UnityAction CongratsParticleStopRequested;
 
-    public void RaiseCongratsParticlePlay()
+    public void RaiseCongratsParticlePlayRequestEvent()
     {
         CongratsParticlePlayRequested?.Invoke();
     }
 
-    public void RaiseCongratsParticleStop()
+    public void RaiseCongratsParticleStopRequestEvent()
     {
         CongratsParticleStopRequested?.Invoke();
     }

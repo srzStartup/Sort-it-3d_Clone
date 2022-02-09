@@ -13,6 +13,7 @@ public class Holder : MonoBehaviour, IPointerClickHandler
     private float _duration = .3f;
 
     public int order { get; set; }
+    // Using Stack<Transform> instead of List<Transform> would be easier.
     public List<Transform> slots { get; set; }
     // key: slotIndex, value: ball
     private Dictionary<int, Transform> balls;
@@ -87,7 +88,12 @@ public class Holder : MonoBehaviour, IPointerClickHandler
         ballToAdd.parent = null;
         ballToAdd.parent = availableSlot;
 
-        Vector3 targetPosition = new Vector3(ballToAdd.parent.position.x, ballToAdd.position.y, ballToAdd.parent.position.z);
+        Vector3 targetPosition = new Vector3(
+            ballToAdd.parent.position.x,
+            ballToAdd.position.y,
+            ballToAdd.parent.position.z
+        );
+
         ballToAdd.DOMove(targetPosition, _duration)
             .OnComplete(() => ballToAdd.DOLocalMove(Vector3.zero, _duration));
 

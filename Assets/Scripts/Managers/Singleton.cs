@@ -1,5 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
+
 using UnityEngine;
 
 public class Singleton<T> : MonoBehaviour where T : MonoBehaviour
@@ -12,7 +14,7 @@ public class Singleton<T> : MonoBehaviour where T : MonoBehaviour
         {
             if (_instance == null)
             {
-                _instance = GameObject.FindObjectOfType<T>();
+                _instance = FindObjectOfType<T>();
                 if (_instance == null)
                 {
                     var singletonObj = new GameObject();
@@ -33,9 +35,11 @@ public class Singleton<T> : MonoBehaviour where T : MonoBehaviour
         }
 
         _instance = GetComponent<T>();
-        DontDestroyOnLoad(gameObject);
 
         if (_instance == null)
             return;
+
+        transform.parent = null;
+        //DontDestroyOnLoad(gameObject);
     }
 }
