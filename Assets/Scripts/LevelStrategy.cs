@@ -50,13 +50,13 @@ public class LevelStrategy : ScriptableObject
     {
         if (considerMoveCount)
         {
-            _moveCountdown--;
             if (_moveCountdown == 0)
             {
                 _inGameEventChannel.RaiseOutOfMoveEvent();
             }
             else
             {
+                _moveCountdown--;
                 _inGameEventChannel.RaiseMoveMadeEvent(_moveCountdown);
             }
         }
